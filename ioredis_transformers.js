@@ -7,35 +7,24 @@ const redis = new Redis({
   // password: 'sssssh',
 });
 
-const PLANET_STREAM_KEY = "planetstream";
+const STREAM_KEY = "temphumidity";
 
 const ioRedisReplyTransformer = async () => {
   // Standard XADD name, value strings...
   pipeline = redis.pipeline();
   await pipeline
-    .del(PLANET_STREAM_KEY)
-    .xadd(PLANET_STREAM_KEY, '*', 'name', 'Mercury', 'diameter', 4879, 'diameterUnit', 'km')
-    .xadd(PLANET_STREAM_KEY, '*', 'name', 'Venus', 'diameter', 12104, 'diameterUnit', 'km')
-    .xadd(PLANET_STREAM_KEY, '*', 'name', 'Earth', 'diameter', 12756, 'diameterUnit', 'km')
-    .xadd(PLANET_STREAM_KEY, '*', 'name', 'Mars', 'diameter', 6779, 'diameterUnit', 'km')
+    .del(STREAM_KEY)
+    .xadd(STREAM_KEY, '*', 'sensorId', '1afc', 'temp', 72.1, 'humidity', 55.4)
+    .xadd(STREAM_KEY, '*', 'sensorId', '2b03', 'temp', 65.3, 'humidity', 38.1)
+    .xadd(STREAM_KEY, '*', 'sensorId', 'e4af', 'temp', 83.5, 'humidity', 82.7)
+    .xadd(STREAM_KEY, '*', 'sensorId', '1afc', 'temp', 45.4, 'humidity', 12.8)
     .exec();
 
   // Standard response...
-  let planetsFromStream = await redis.xrange(PLANET_STREAM_KEY, '-', '+', 'COUNT', 2);
-  /* 
-    [
-      [
-        '1590185150185-0',
-        [ 'name', 'Mercury', 'diameter', '4879', 'diameterUnit', 'km' ]
-      ],
-      [
-        '1590185150185-1',
-        [ 'name', 'Venus', 'diameter', '12104', 'diameterUnit', 'km' ]
-      ]
-    ]
-  */
+  let streamEntries = await redis.xrange(STREAM_KEY, '-', '+', 'COUNT', 2);
+
   console.log('XRANGE, standard response:');
-  console.log(planetsFromStream);
+  console.log(streamEntries);
 
   // Streams with reply transformer to get an array of objects...
   Redis.Command.setReplyTransformer('xrange', function (result) {
@@ -63,9 +52,10 @@ const ioRedisReplyTransformer = async () => {
     return result;
   });
 
-  planetsFromStream = await redis.xrange(PLANET_STREAM_KEY, '-', '+', 'COUNT', 2);
+  streamEntries = await redis.xrange(STREAM_KEY, '-', '+', 'COUNT', 2);
+
   console.log('XRANGE, response with reply transformer:');
-  console.log(planetsFromStream);
+  console.log(streamEntries);
 };
 
 const ioRedisArgumentTransformer = async () => {
@@ -89,13 +79,13 @@ const ioRedisArgumentTransformer = async () => {
     return args;
   });
 
-  const id = await redis.xadd(PLANET_STREAM_KEY, '*', { 
-    'name': 'Mercury', 
-    'diameter': 4879,
-    'diameterUnit': 'km'
+  const id = await redis.xadd(STREAM_KEY, '*', { 
+    'sensorId': '0c14', 
+    'temp': 48.6,
+    'humidity': 22.3,
   });
 
-  console.log(`ADD, ID for entry added with argument transformer: ${id}`);
+  console.log(`XADD, ID for entry added with argument transformer: ${id}`);
 };
 
 const runIoRedisTransformers = async () => {
