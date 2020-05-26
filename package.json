@@ -1,0 +1,20 @@
+{
+  "name": "ioredis-demo",
+  "version": "0.0.1",
+  "description": "ioredis Redis Client Demo",
+  "main": "index.js",
+  "scripts": {
+    "basics": "node ioredis_basics.js",
+    "transformers": "node ioredis_transformers.js",
+    "streamingscan": "node ioredis_streaming_scan.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Redis Labs",
+  "engines": {
+    "node": ">=8.9.4"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "ioredis": "^4.17.1"
+  }
+}
