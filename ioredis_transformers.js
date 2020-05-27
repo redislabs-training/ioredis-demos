@@ -11,8 +11,7 @@ const STREAM_KEY = "temphumidity";
 
 const ioRedisArgumentTransformer = async () => {
   // Standard XADD using name, value strings...
-  pipeline = redis.pipeline();
-  await pipeline
+  await redis.pipeline()
     .del(STREAM_KEY)
     .xadd(STREAM_KEY, '*', 'sensorId', '1afc', 'temp', 72.1, 'humidity', 55.4)
     .xadd(STREAM_KEY, '*', 'sensorId', '2b03', 'temp', 65.3, 'humidity', 38.1)

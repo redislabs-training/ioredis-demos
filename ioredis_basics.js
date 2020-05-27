@@ -1,12 +1,13 @@
 const Redis = require('ioredis');
 
+// Basic connection, will use defaults if object not provided.
+const redis = new Redis({
+  port: 6379,
+  host: '127.0.0.1',
+  // password: 'sssssh',
+});
+
 const ioRedisBasics = async () => {
-  // Basic connection, will use defaults if object not provided.
-  const redis = new Redis({
-    port: 6379,
-    host: '127.0.0.1',
-    // password: 'sssssh',
-  });
 
   // Basic Redis commands.
   const PLANET_LIST_KEY = 'planets';
@@ -26,9 +27,8 @@ const ioRedisBasics = async () => {
 
   // Pipelining with chained commands.  Transactions 
   // work in the same manner.
-  let pipeline = redis.pipeline();
 
-  await pipeline
+  await redis.pipeline()
     .hset('planet:mercury', 'name', 'Mercury', 'diameter', 4879, 'diameterUnit', 'km')
     .hset('planet:venus', 'name', 'Venus', 'diameter', 12104, 'diameterUnit', 'km')
     .hset('planet:earth', 'name', 'Earth', 'diameter', 12756, 'diameterUnit', 'km')
@@ -41,9 +41,7 @@ const ioRedisBasics = async () => {
   console.log(planet);
   
   // Get results from a pipeline.
-  pipeline = redis.pipeline();
-
-  const pipeResults = await pipeline
+  const pipeResults = await redis.pipeline()
     .hgetall('planet:venus')
     .hgetall('planet:earth')
     .exec();
