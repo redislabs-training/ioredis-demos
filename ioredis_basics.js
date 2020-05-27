@@ -10,10 +10,14 @@ const ioRedisBasics = async () => {
 
   // Basic Redis commands.
   const PLANET_LIST_KEY = 'planets';
+  const planets = [
+    'Mercury', 'Venus', 'Earth', 'Mars', 'Jupiter', 
+    'Saturn', 'Uranus', 'Neptune', 'Pluto'
+  ];
 
   await redis.del(PLANET_LIST_KEY);
 
-  const numPushed = await redis.lpush(PLANET_LIST_KEY, 'Mercury', 'Venus', 'Earth', 'Mars', 'Jupiter', 'Saturn', 'Uranus', 'Neptune', 'Pluto');
+  const numPushed = await redis.lpush(PLANET_LIST_KEY, planets);
   console.log(`LPUSH, pushed ${numPushed} planets.`);
 
   // LRANGE returns an array of strings.
