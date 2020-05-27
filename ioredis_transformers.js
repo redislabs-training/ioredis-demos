@@ -9,8 +9,8 @@ const redis = new Redis({
 
 const STREAM_KEY = "temphumidity";
 
-const ioRedisReplyTransformer = async () => {
-  // Standard XADD name, value strings...
+const ioRedisArgumentTransformer = async () => {
+  // Standard XADD using name, value strings...
   pipeline = redis.pipeline();
   await pipeline
     .del(STREAM_KEY)
@@ -20,6 +20,36 @@ const ioRedisReplyTransformer = async () => {
     .xadd(STREAM_KEY, '*', 'sensorId', '1afc', 'temp', 45.4, 'humidity', 12.8)
     .exec();
 
+  // XADD with argument transformer to accept an object...
+  Redis.Command.setArgumentTransformer("xadd", function (args) {
+    if (args.length === 3) {
+      const argArray = [];
+
+      argArray.push(args[0], args[1]); // Key Name & ID.
+
+      // Transform object into array of key then value.
+      const keyValuePairs = args[2];
+
+      for (const key in keyValuePairs) {
+        argArray.push(key, keyValuePairs[key]);
+      }
+
+      return argArray;
+    }
+
+    return args;
+  });
+
+  const id = await redis.xadd(STREAM_KEY, '*', { 
+    'sensorId': '0c14', 
+    'temp': 48.6,
+    'humidity': 22.3,
+  });
+
+  console.log(`XADD, ID for entry added with argument transformer: ${id}`);
+};
+
+const ioRedisReplyTransformer = async () => {
   // Standard response...
   let streamEntries = await redis.xrange(STREAM_KEY, '-', '+', 'COUNT', 2);
 
@@ -58,40 +88,10 @@ const ioRedisReplyTransformer = async () => {
   console.log(streamEntries);
 };
 
-const ioRedisArgumentTransformer = async () => {
-  // XADD with argument transformer...
-  Redis.Command.setArgumentTransformer("xadd", function (args) {
-    if (args.length === 3) {
-      const argArray = [];
-
-      argArray.push(args[0], args[1]); // Key Name & ID.
-
-      // Transform object into array of key then value.
-      const keyValuePairs = args[2];
-
-      for (const key in keyValuePairs) {
-        argArray.push(key, keyValuePairs[key]);
-      }
-
-      return argArray;
-    }
-
-    return args;
-  });
-
-  const id = await redis.xadd(STREAM_KEY, '*', { 
-    'sensorId': '0c14', 
-    'temp': 48.6,
-    'humidity': 22.3,
-  });
-
-  console.log(`XADD, ID for entry added with argument transformer: ${id}`);
-};
-
 const runIoRedisTransformers = async () => {
-  await ioRedisReplyTransformer();
   await ioRedisArgumentTransformer();
-
+  await ioRedisReplyTransformer();
+  
   // Disconnect
   redis.quit();
 };
