@@ -8,6 +8,13 @@ const redis = new Redis({
 });
 
 const ioRedisBasics = async () => {
+  // First example.
+  redis.hincrby('mykey', 'myfield', 5, function (err, results) {
+    console.log(results);
+  });
+
+  const results = await redis.hincrby('mykey', 'myfield', 5);
+  console.log(results);
 
   // Basic Redis commands.
   const PLANET_LIST_KEY = 'planets';
