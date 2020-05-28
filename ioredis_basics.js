@@ -23,7 +23,8 @@ const ioRedisBasics = async () => {
 
   // LRANGE returns an array of strings.
   const somePlanets = await redis.lrange(PLANET_LIST_KEY, 0, 4);
-  console.log(`LRANGE, retrieved: ${somePlanets}`);
+  console.log('LRANGE, retrieved:');
+  console.log(somePlanets);
 
   // Pipelining with chained commands.  Transactions 
   // work in the same manner.
