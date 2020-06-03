@@ -37,10 +37,14 @@ const ioRedisBasics = async () => {
   // work in the same manner.
 
   await redis.pipeline()
-    .hset('planet:mercury', 'name', 'Mercury', 'diameter', 4879, 'diameterUnit', 'km')
-    .hset('planet:venus', 'name', 'Venus', 'diameter', 12104, 'diameterUnit', 'km')
-    .hset('planet:earth', 'name', 'Earth', 'diameter', 12756, 'diameterUnit', 'km')
-    .hset('planet:mars', 'name', 'Mars', 'diameter', 6779, 'diameterUnit', 'km')
+    .hset('planet:mercury', 'name', 'Mercury', 'diameter', 4879, 
+          'diameterUnit', 'km')
+    .hset('planet:venus', 'name', 'Venus', 'diameter', 12104, 
+          'diameterUnit', 'km')
+    .hset('planet:earth', 'name', 'Earth', 'diameter', 12756, 
+          'diameterUnit', 'km')
+    .hset('planet:mars', 'name', 'Mars', 'diameter', 6779, 
+          'diameterUnit', 'km')
     .exec();
 
   // HGETALL returns an object by default.
@@ -59,8 +63,10 @@ const ioRedisBasics = async () => {
      error, and the response object from the hgetall command.
 
     [
-       [ null, { name: 'Venus', diameter: '12104', diameterUnit: 'km' } ],
-       [ null, { name: 'Earth', diameter: '12756', diameterUnit: 'km' } ]
+       [ null, { name: 'Venus', diameter: '12104', 
+                 diameterUnit: 'km' } ],
+       [ null, { name: 'Earth', diameter: '12756', 
+                 diameterUnit: 'km' } ]
     ]
   */
   console.log('Pipeline results:');
