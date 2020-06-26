@@ -25,8 +25,8 @@ const ioRedisBasics = async () => {
 
   await redis.del(PLANET_LIST_KEY);
 
-  const numPushed = await redis.lpush(PLANET_LIST_KEY, planets);
-  console.log(`LPUSH, pushed ${numPushed} planets.`);
+  const listLength = await redis.lpush(PLANET_LIST_KEY, planets);
+  console.log(`LPUSH, planets list length is ${listLength}.`);
 
   // LRANGE returns an array of strings.
   const somePlanets = await redis.lrange(PLANET_LIST_KEY, 0, 4);
