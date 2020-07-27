@@ -109,6 +109,8 @@ const ioRedisLargeSetDemo = async () => {
   setMembers = await ioRedisES6GeneratorSetScan();
   console.log(`Generator scan complete, read ${setMembers.length} members.`);
 
+  // Clean up
+  await redis.del(LARGE_SET_KEY);
   redis.quit();
 };
 
