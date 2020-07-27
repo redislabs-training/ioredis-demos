@@ -7,7 +7,7 @@ const redis = new Redis({
   // password: 'sssssh',
 });
 
-const STREAM_KEY = "temphumidity";
+const STREAM_KEY = 'temphumidity';
 
 const ioRedisArgumentTransformer = async () => {
   // Standard XADD using name, value strings...
@@ -20,7 +20,7 @@ const ioRedisArgumentTransformer = async () => {
     .exec();
 
   // XADD with argument transformer to accept an object...
-  Redis.Command.setArgumentTransformer("xadd", function (args) {
+  Redis.Command.setArgumentTransformer('xadd', function (args) {
     if (args.length === 3) {
       const argArray = [];
 
