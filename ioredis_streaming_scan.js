@@ -80,18 +80,19 @@ const ioRedisES6GeneratorSetScan = async () => {
 
   const allMembers = [];
   const setIterator = setMembersGenerator();
-  let done = false;
 
-  do {
-    let setMembers;
+  while(true) {
+    let { value, done } = await setIterator.next();
 
-    ({ value: setMembers, done } = await setIterator.next());
+    // value will be undefined when done is true, otherwise
+    // it is an array of the latest members returned from SSCAN.
 
-    // setMembers will be undefined when done is true.
-    if (! done) {
-      allMembers.push(...setMembers);
+    if (done) {
+      break;
     }
-  } while (! done);
+
+    allMembers.push(...value);
+  }
 
   return allMembers;
 };
