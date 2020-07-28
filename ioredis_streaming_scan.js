@@ -88,7 +88,7 @@ const ioRedisES6GeneratorSetScan = async () => {
     ({ value: setMembers, done } = await setIterator.next());
 
     // setMembers will be undefined when done is true.
-    if (setMembers) {
+    if (! done) {
       allMembers.push(...setMembers);
     }
   } while (! done);
