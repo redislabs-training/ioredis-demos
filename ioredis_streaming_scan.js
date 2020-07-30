@@ -23,42 +23,96 @@ const createLargeSet = async () => {
 };
 
 const ioRedisRegularSetScan = async () => {
-  let it = '0';
+  let cursor = '0'; // Store cursor value from Redis.
   const allMembers = [];
 
   do {
-    const response = await redis.sscan(LARGE_SET_KEY, it);
-    // Get next value of cursor and log responses.
-    it = response[0];
-    const setMembers = response[1];
-    allMembers.push(...setMembers);
-    console.log(setMembers);
-  } while (it !== '0');
+    const response = await redis.sscan(LARGE_SET_KEY, cursor);
+    // Get next value of cursor and store values returned.
+    cursor = response[0];
+    allMembers.push(...response[1]);
+  } while (cursor !== '0');  // Done when cursor is '0' again.
 
-  console.log(`Done scanning the large set, read ${allMembers.length} members.`);
+  return allMembers;
 };
 
 const ioRedisStreamingSetScan = async () => {
-  // Read back all set members, using a scan approach (SSCAN).
-  const allMembers = [];
-  const stream = redis.sscanStream(LARGE_SET_KEY);
+  return new Promise ((resolve, reject) => {
+    try {
+      // Read back all set members, using a scan approach (SSCAN).
+      const allMembers = [];
+      const stream = redis.sscanStream(LARGE_SET_KEY);
 
-  stream.on('data', function (setMembers) {
-    // setMembers is an array of 1 or more members.
-    allMembers.push(...setMembers);
-    console.log(setMembers);
-  });
+      stream.on('data', function (setMembers) {
+        // setMembers is an array of 1 or more members.
+        allMembers.push(...setMembers);
+      });
 
-  stream.on('end', function () {
-    console.log(`Done scanning the large set, read ${allMembers.length} members.`);
-    redis.quit();
+      stream.on('end', function () {
+        // No more members left to read.
+        resolve(allMembers);
+      });
+    } catch (e) {
+      // Something went wrong :(
+      reject(e);
+    }
   });
 };
 
+const ioRedisES6GeneratorSetScan = async () => {
+  // Read back all set members, using ES6 Generator function approach.
+  const setMembersGenerator = async function* () {
+    let cursor = '0';
+
+    do {
+      const response = await redis.sscan(LARGE_SET_KEY, cursor);
+
+      // Get next value of cursor.
+      cursor = response[0];
+
+      // Yield the set members returned from Redis.
+      yield response[1];
+    } while (cursor !== '0');
+  };
+
+  // Get values from the generator.  Using the generator shields us 
+  // from the details of the Redis implementation.
+
+  const allMembers = [];
+  const setIterator = setMembersGenerator();
+
+  while(true) {
+    let { value, done } = await setIterator.next();
+
+    // value will be undefined when done is true, otherwise
+    // it is an array of the latest members returned from SSCAN.
+
+    if (done) {
+      break;
+    }
+
+    allMembers.push(...value);
+  }
+
+  return allMembers;
+};
+
 const ioRedisLargeSetDemo = async () => {
+  console.log('Creating set...');
   await createLargeSet();
-  await ioRedisRegularSetScan();
-  await ioRedisStreamingSetScan();
+  
+  let setMembers = await ioRedisRegularSetScan();
+  console.log(`Regular scan complete, read ${setMembers.length} members.`);
+  
+  setMembers = await ioRedisStreamingSetScan();
+  console.log(`Streaming scan complete, read ${setMembers.length} members.`);
+  
+  setMembers = await ioRedisES6GeneratorSetScan();
+  console.log(`Generator scan complete, read ${setMembers.length} members.`);
+
+  // Clean up
+  await redis.del(LARGE_SET_KEY);
+  redis.quit();
 };
 
 try {
