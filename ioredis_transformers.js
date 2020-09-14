@@ -10,7 +10,7 @@ const redis = new Redis({
 const STREAM_KEY = 'temphumidity';
 
 const ioRedisArgumentTransformer = async () => {
-  // Standard XADD using name, value strings...
+  // Standard XADD using field name, value strings...
   await redis.pipeline()
     .del(STREAM_KEY)
     .xadd(STREAM_KEY, '*', 'sensorId', '1afc', 'temp', 72.1, 'humidity', 55.4)
@@ -26,11 +26,11 @@ const ioRedisArgumentTransformer = async () => {
 
       argArray.push(args[0], args[1]); // Key Name & ID.
 
-      // Transform object into array of key then value.
-      const keyValuePairs = args[2];
+      // Transform object into array of field name then value.
+      const fieldNameValuePairs = args[2];
 
-      for (const key in keyValuePairs) {
-        argArray.push(key, keyValuePairs[key]);
+      for (const fieldName in fieldNameValuePairs) {
+        argArray.push(key, fieldNameValuePairs[fieldName]);
       }
 
       return argArray;
