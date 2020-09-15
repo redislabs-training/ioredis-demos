@@ -30,7 +30,7 @@ const ioRedisArgumentTransformer = async () => {
       const fieldNameValuePairs = args[2];
 
       for (const fieldName in fieldNameValuePairs) {
-        argArray.push(key, fieldNameValuePairs[fieldName]);
+        argArray.push(fieldName, fieldNameValuePairs[fieldName]);
       }
 
       return argArray;
