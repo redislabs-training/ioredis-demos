@@ -64,11 +64,11 @@ const ioRedisReplyTransformer = async () => {
           id: r[0]
         };
 
-        const keysValues = r[1];
+        const fieldNamesValues = r[1];
 
-        for (let n = 0; n < keysValues.length; n += 2) {
-          const k = keysValues[n];
-          const v = keysValues[n + 1];
+        for (let n = 0; n < fieldNamesValues.length; n += 2) {
+          const k = fieldNamesValues[n];
+          const v = fieldNamesValues[n + 1];
           obj[k] = v;
         }
 
