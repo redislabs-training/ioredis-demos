@@ -40,9 +40,9 @@ const ioRedisArgumentTransformer = async () => {
   });
 
   const id = await redis.xadd(STREAM_KEY, '*', { 
-    'sensorId': '0c14', 
-    'temp': 48.6,
-    'humidity': 22.3,
+    sensorId: '0c14', 
+    temp: 48.6,
+    humidity: 22.3,
   });
 
   console.log(`XADD, ID for entry added with argument transformer: ${id}`);
