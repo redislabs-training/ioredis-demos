@@ -9,7 +9,7 @@
     "streamingscan": "node ioredis_streaming_scan.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "Redis Labs",
+  "author": "Redis",
   "engines": {
     "node": ">=8.9.4"
   },
